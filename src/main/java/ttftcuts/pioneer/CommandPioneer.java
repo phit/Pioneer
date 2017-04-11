@@ -14,12 +14,12 @@ import ttftcuts.pioneer.map.MapJob;
 
 public class CommandPioneer extends CommandBase {
     @Override
-    public String getCommandName() {
+    public String getName() {
         return "pioneer";
     }
 
     @Override
-    public String getCommandUsage(ICommandSender sender) {
+    public String getUsage(ICommandSender sender) {
         return "commands.pioneer.usage";
     }
 

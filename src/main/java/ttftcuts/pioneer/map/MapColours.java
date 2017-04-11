@@ -64,7 +64,7 @@ public class MapColours {
         boolean treebased = false;
         int colour = this.getTopColour(biome);
 
-        if (BiomeDictionary.isBiomeOfType(biome, BiomeDictionary.Type.FOREST)) {
+        if (BiomeDictionary.hasType(biome, BiomeDictionary.Type.FOREST)) {
             colour = blend(biome.getFoliageColorAtPos(BlockPos.ORIGIN), 0xff0b7000, 0.35);
             treebased = true;
         }
@@ -84,8 +84,8 @@ public class MapColours {
             }
         }
 
-        if (BiomeDictionary.isBiomeOfType(biome, BiomeDictionary.Type.RIVER)
-                || BiomeDictionary.isBiomeOfType(biome, BiomeDictionary.Type.OCEAN)) {
+        if (BiomeDictionary.hasType(biome, BiomeDictionary.Type.RIVER)
+                || BiomeDictionary.hasType(biome, BiomeDictionary.Type.OCEAN)) {
             colour = blend(colour, 0xff4582ff, 0.7); // sea blue
         }
 
@@ -151,7 +151,7 @@ public class MapColours {
                     if (topOverridden) {
                         int noiseindex = (z+rad) * size + (x+rad);
 
-                        biome.genTerrainBlocks(Minecraft.getMinecraft().theWorld, this.rand, dummyPrimer, x, z, noise[noiseindex]);
+                        biome.genTerrainBlocks(Minecraft.getMinecraft().world, this.rand, dummyPrimer, x, z, noise[noiseindex]);
                     }
 
                     int col = this.getBiomeBlockColourForCoords(biome, pos);
