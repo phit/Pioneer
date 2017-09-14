@@ -2,21 +2,14 @@ package ttftcuts.pioneer.map;
 
 import com.google.gson.JsonObject;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.block.model.BakedQuad;
-import net.minecraft.client.renderer.block.model.IBakedModel;
-import net.minecraft.util.EnumFacing;
-import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.world.World;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.biome.BiomeProvider;
-import net.minecraftforge.common.DimensionManager;
 import ttftcuts.pioneer.Pioneer;
-import ttftcuts.pioneer.util.CoordPair;
 
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -134,8 +127,8 @@ public class MapJob {
         mapinfo.addProperty("seed", this.world.getWorldInfo().getSeed()+"");
 
         JsonObject generator = new JsonObject();
-        generator.addProperty("name", this.world.getWorldType().getTranslateName());
-        generator.addProperty("version", this.world.getWorldType().getGeneratorVersion());
+        generator.addProperty("name", this.world.getWorldType().getTranslationKey());
+        generator.addProperty("version", this.world.getWorldType().getVersion());
         generator.addProperty("options", this.world.getWorldInfo().getGeneratorOptions());
         mapinfo.add("generator", generator);
 

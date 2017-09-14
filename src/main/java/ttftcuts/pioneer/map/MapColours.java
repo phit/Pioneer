@@ -6,26 +6,21 @@ import net.minecraft.client.renderer.*;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.block.model.IBakedModel;
 import net.minecraft.client.renderer.color.BlockColors;
-import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
-import net.minecraft.client.shader.Framebuffer;
 import net.minecraft.init.Blocks;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.chunk.ChunkPrimer;
 import net.minecraft.world.gen.NoiseGeneratorPerlin;
 import net.minecraftforge.common.BiomeDictionary;
-import net.minecraftforge.fml.relauncher.ReflectionHelper;
-import org.lwjgl.opengl.GL11;
-import ttftcuts.pioneer.Pioneer;
+import net.minecraftforge.common.DimensionManager;
 import ttftcuts.pioneer.util.DummyChunkPrimer;
 import ttftcuts.pioneer.util.ReflectionUtil;
 
 import java.lang.reflect.Method;
-import java.nio.ByteBuffer;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -75,7 +70,7 @@ public class MapColours {
             treebased = true;
         }*/
 
-        int trees = biome.theBiomeDecorator.treesPerChunk;
+        int trees = biome.decorator.treesPerChunk;
         if (trees > 0) {
             colour = blend(colour, 0xff0b7000, Math.min(0.25, trees * 0.025));
             colour = brightness(colour, 1.0 - Math.min(0.1, trees * 0.015));
@@ -174,9 +169,9 @@ public class MapColours {
 
     public int getBiomeBlockColourForCoords(Biome biome, BlockPos pos) {
         int colour;
-
         if (biome.topBlock == Blocks.GRASS.getDefaultState()) { // uuuugh
-            colour = biome.topBlock.getMapColor().colorValue | 0xFF000000;
+            IBlockAccess overworld = DimensionManager.getWorld(0);
+            colour = biome.topBlock.getMapColor(overworld, pos).colorValue | 0xFF000000;
             int tint = biome.getGrassColorAtPos(pos) | 0xFF000000;
             colour = blend(colour,tint, 0.75);
         } else {
@@ -202,7 +197,8 @@ public class MapColours {
         BlockModelShapes shapes = brd.getBlockModelShapes();
         BlockColors colours = mc.getBlockColors();
 
-        int colour = block.getMapColor().colorValue | 0xFF000000;
+        IBlockAccess overworld = DimensionManager.getWorld(0);
+        int colour = block.getMapColor(overworld, new BlockPos(0, 255, 0)).colorValue | 0xFF000000;
         int fallback = colour;
 
         if (block == Blocks.GRASS.getDefaultState()) {
@@ -214,7 +210,7 @@ public class MapColours {
                 List<BakedQuad> topquads = topmodel.getQuads(block, EnumFacing.UP, 0);
 
                 for (BakedQuad quad : topquads) {
-                    colour = block.getMapColor().colorValue | 0xFF000000;
+                    colour = block.getMapColor(overworld, new BlockPos(0, 255, 0)).colorValue | 0xFF000000;
                     if (quad.hasTintIndex()) {
                         int tint = colours.colorMultiplier(block, null, null, quad.getTintIndex()) | 0xFF000000;
                         //colour = intAverage(colour, tint);
@@ -237,7 +233,7 @@ public class MapColours {
     public static void drawTexturedRect(int x, int y, float u1, float v1, float u2, float v2, int width, int height, float zLevel)
     {
         Tessellator tessellator = Tessellator.getInstance();
-        VertexBuffer wr = tessellator.getBuffer();
+        BufferBuilder wr = tessellator.getBuffer();
         wr.begin(7, DefaultVertexFormats.POSITION_TEX);
         wr.pos(x        , y + height, zLevel).tex( u1, v2 ).endVertex();
         wr.pos(x + width, y + height, zLevel).tex( u2, v2 ).endVertex();

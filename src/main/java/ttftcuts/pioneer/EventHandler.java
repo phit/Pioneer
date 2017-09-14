@@ -2,7 +2,6 @@ package ttftcuts.pioneer;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
-import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.util.ResourceLocation;
@@ -45,7 +44,7 @@ public class EventHandler {
 
         GuiUtils.drawTexturedModalRect(5,5,offset,0,32,32,1.0f);
 
-        FontRenderer font = mc.fontRendererObj;
+        FontRenderer font = mc.fontRenderer;
         String text = job.getCompletionPercent(true) + "%";
 
         font.drawString(text, 5 + 16 - font.getStringWidth(text)/2, 39, 0xFFFFFF, true);

@@ -1,7 +1,6 @@
 package ttftcuts.pioneer;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.init.Blocks;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.event.*;
@@ -16,7 +15,7 @@ import java.io.File;
 public class Pioneer
 {
     public static final String MODID = "pioneer";
-    public static final String VERSION = "2.0.0";
+    public static final String VERSION = "2.3.0";
 
     public static final int TILE_SIZE = 128;
     public static File SAVE_PATH;
