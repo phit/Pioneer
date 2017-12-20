@@ -92,7 +92,7 @@ public class MapColours {
         }
 
         if (treebased) {
-            colour = temptint(colour, biome.getTemperature());
+            colour = temptint(colour, biome.getDefaultTemperature());
         }
 
         if (biome.isSnowyBiome()) {

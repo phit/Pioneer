@@ -37,10 +37,10 @@ targetCompatibility = JavaVersion.VERSION_1_8
 // Setup
 ///////////////////////////////////////////////////
 minecraft {
-    version = "1.12.1-14.22.1.2479"
+    version = "1.12.2-14.23.1.2559"
     runDir = "run"
     
-    mappings = "snapshot_20170624"
+    mappings = "snapshot_20171007"
     // makeObfSourceJar = false // an Srg named sources jar is made by default. uncomment this to disable.
 }
 

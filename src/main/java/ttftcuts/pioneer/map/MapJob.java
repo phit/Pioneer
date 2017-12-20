@@ -153,7 +153,7 @@ public class MapJob {
             JsonObject bson = new JsonObject();
 
             bson.addProperty("name", biome.getBiomeName());
-            bson.addProperty("temperature", biome.getTemperature());
+            bson.addProperty("temperature", biome.getDefaultTemperature());
             bson.addProperty("moisture", biome.getRainfall());
             bson.addProperty("snow", biome.isSnowyBiome());
             bson.addProperty("rain", biome.canRain());
