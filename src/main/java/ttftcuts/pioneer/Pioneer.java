@@ -15,7 +15,7 @@ import java.io.File;
 public class Pioneer
 {
     public static final String MODID = "pioneer";
-    public static final String VERSION = "2.3.0";
+    public static final String VERSION = "2.4.0";
 
     public static final int TILE_SIZE = 128;
     public static File SAVE_PATH;

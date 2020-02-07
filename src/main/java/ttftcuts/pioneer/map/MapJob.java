@@ -1,11 +1,19 @@
 package ttftcuts.pioneer.map;
 
+import static net.minecraft.world.biome.Biome.getIdForBiome;
+
 import com.google.gson.JsonObject;
 import net.minecraft.client.Minecraft;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextComponentTranslation;
+import net.minecraft.util.text.event.ClickEvent;
 import net.minecraft.world.World;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.biome.BiomeProvider;
+import net.minecraftforge.fml.common.registry.ForgeRegistries;
+import org.apache.commons.io.FilenameUtils;
 import ttftcuts.pioneer.Pioneer;
 
 import java.io.File;
@@ -162,7 +170,26 @@ public class MapJob {
             bson.addProperty("ismutation", biome.isMutation());
 
             if (biome.isMutation()) {
-                bson.addProperty("mutationof", Biome.MUTATION_TO_BASE_ID_MAP.get(biome));
+                // bson.addProperty("mutationof", Biome.MUTATION_TO_BASE_ID_MAP.get(biome));
+                String bp = biome.baseBiomeRegName;
+
+                if (bp != null) {
+                    ResourceLocation locBiome = ForgeRegistries.BIOMES.getKey(biome);
+                    Biome parent = ForgeRegistries.BIOMES.getValue(new ResourceLocation(locBiome.getResourceDomain() + ":" + bp));
+
+                    if (parent != null) {
+                        bson.addProperty("mutationof", Biome.getIdForBiome(parent));
+                    } else {
+                        Biome parent2 = ForgeRegistries.BIOMES.getValue(new ResourceLocation("minecraft:" + bp));
+                        if (parent2 != null) {
+                            bson.addProperty("mutationof", Biome.getIdForBiome(parent2));
+                        } else {
+                            bson.addProperty("mutationof", 0);
+                        }
+                    }
+                } else {
+                    bson.addProperty("mutationof", 0);
+                }
             }
 
             bson.addProperty("colour", "#" + Integer.toHexString(Pioneer.mapColours.getBiomeMapColour(biome)).substring(2));

@@ -17,7 +17,7 @@ buildscript {
 apply plugin: 'net.minecraftforge.gradle.forge'
 apply plugin: 'idea'
 
-version = "2.3.0"
+version = "2.4.0"
 group= "ttftcuts.pioneer"
 archivesBaseName = "pioneer"
 
@@ -68,6 +68,8 @@ processResources
     from(sourceSets.main.resources.srcDirs) {
         exclude 'mcmod.info'
     }
+
+    rename '(.+_at.cfg)', 'META-INF/$1'
 }
 
 task deobfJar(type: Jar) {
@@ -77,4 +79,10 @@ task deobfJar(type: Jar) {
 
 artifacts {
     archives deobfJar
+}
+
+jar {
+    manifest {
+        attributes 'FMLAT': 'pioneer_at.cfg'
+    }
 }
