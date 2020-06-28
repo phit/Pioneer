@@ -171,7 +171,7 @@ public class MapJob {
 
                 if (bp != null) {
                     ResourceLocation locBiome = ForgeRegistries.BIOMES.getKey(biome);
-                    Biome parent = ForgeRegistries.BIOMES.getValue(new ResourceLocation(locBiome.getNamespace() + ":" + bp));
+                    Biome parent = ForgeRegistries.BIOMES.getValue(new ResourceLocation(bp.contains(":") ? bp : locBiome.getNamespace() + ":" + bp));
 
                     if (parent != null) {
                         bson.addProperty("mutationof", Registry.BIOME.getId(parent));
