@@ -202,6 +202,7 @@ void loadMapData(List<int> data) {
 		querySelector("#overlay").style.display="none";
 	} catch(ex, trace) {
 
+		print(trace);
 		String message = "Something went wrong!<br/>If you are sure that the chosen file is a valid map, then please report the issue.";
 
 		if (ex is ArchiveException) {

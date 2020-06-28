@@ -1,15 +1,17 @@
 package ttftcuts.pioneer.map;
 
+import net.minecraft.util.registry.Registry;
 import net.minecraft.world.biome.Biome;
-import net.minecraft.world.biome.BiomeProvider;
+import net.minecraft.world.biome.provider.BiomeProvider;
 import ttftcuts.pioneer.Pioneer;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBuffer;
-import java.awt.image.Raster;
 import java.awt.image.WritableRaster;
 import java.io.IOException;
+import java.util.Collections;
+import java.util.Set;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -37,14 +39,14 @@ public class MapTile {
         DataBuffer data = r.getDataBuffer();
         int x, z, index;
 
-        Biome[] biome = new Biome[1];
+        Set<Biome> biome;
 
         for (x = 0; x<Pioneer.TILE_SIZE; x++) {
             for (z = 0; z<Pioneer.TILE_SIZE; z++) {
                 index = z * Pioneer.TILE_SIZE + x;
 
-                provider.getBiomes(biome, this.worldX + x * skip, this.worldZ + z * skip, 1, 1);
-                data.setElem(index, Biome.getIdForBiome(biome[0]));
+                biome = provider.getBiomes(this.worldX + x * skip, 1, this.worldZ + z * skip, 1);
+                data.setElem(index, Registry.BIOME.getId(biome.iterator().next()));
             }
         }
 

@@ -1,14 +1,14 @@
 package ttftcuts.pioneer;
 
+import com.mojang.blaze3d.platform.GlStateManager;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
-import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
-import net.minecraftforge.fml.client.config.GuiUtils;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import net.minecraftforge.fml.common.gameevent.TickEvent;
+import net.minecraftforge.event.TickEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.client.gui.GuiUtils;
 import ttftcuts.pioneer.map.MapJob;
 
 public class EventHandler {
@@ -34,12 +34,12 @@ public class EventHandler {
 
         MapJob job = Pioneer.currentJob;
 
-        Minecraft mc = Minecraft.getMinecraft();
+        Minecraft mc = Minecraft.getInstance();
 
         mc.getTextureManager().bindTexture(workingTexture);
-        GlStateManager.resetColor();
+        GlStateManager.clearCurrentColor();
 
-        int frame = (int)(Minecraft.getSystemTime() / 500) % 4;
+        int frame = (Minecraft.getInstance().getFrameTimer().getIndex() / 500) % 4;
         int offset = 32 * frame;
 
         GuiUtils.drawTexturedModalRect(5,5,offset,0,32,32,1.0f);
@@ -47,11 +47,11 @@ public class EventHandler {
         FontRenderer font = mc.fontRenderer;
         String text = job.getCompletionPercent(true) + "%";
 
-        font.drawString(text, 5 + 16 - font.getStringWidth(text)/2, 39, 0xFFFFFF, true);
+        font.drawString(text, 5 + 16 - font.getStringWidth(text)/2, 39, 0xFFFFFF);
 
         if (mc.isGamePaused()) {
             text = I18n.format("commands.pioneer.paused");
-            font.drawString(text, 5 + 16 - font.getStringWidth(text)/2, 49, 0xFF3333, true);
+            font.drawString(text, 5 + 16 - font.getStringWidth(text)/2, 49, 0xFF3333);
         }
     }
 }
