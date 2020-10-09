@@ -47,11 +47,11 @@ public class EventHandler {
         FontRenderer font = mc.fontRenderer;
         String text = job.getCompletionPercent(true) + "%";
 
-        font.drawString(text, 5 + 16 - font.getStringWidth(text)/2, 39, 0xFFFFFF);
+        font.drawString(event.getMatrixStack(), text, 5 + 16 - font.getStringWidth(text)/2, 39, 0xFFFFFF);
 
         if (mc.isGamePaused()) {
             text = I18n.format("commands.pioneer.paused");
-            font.drawString(text, 5 + 16 - font.getStringWidth(text)/2, 49, 0xFF3333);
+            font.drawString(event.getMatrixStack(), text, 5 + 16 - font.getStringWidth(text)/2, 49, 0xFF3333);
         }
     }
 }

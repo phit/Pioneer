@@ -11,10 +11,9 @@ import net.minecraft.util.Direction;
 import net.minecraft.util.SharedSeedRandom;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockReader;
+import net.minecraft.world.World;
 import net.minecraft.world.biome.Biome;
-import net.minecraft.world.dimension.DimensionType;
-import net.minecraftforge.common.BiomeDictionary;
-import net.minecraftforge.common.DimensionManager;
+import net.minecraft.world.DimensionType;
 
 import java.util.HashMap;
 import java.util.List;
@@ -43,28 +42,14 @@ public class MapColours {
         boolean treebased = false;
         int colour = this.getTopColour(biome);
 
-        if (BiomeDictionary.hasType(biome, BiomeDictionary.Type.FOREST)) {
+        if (biome.getCategory() == Biome.Category.FOREST) {
             colour = blend(biome.getFoliageColor(), 0xff0b7000, 0.35);
             treebased = true;
         }
 
-        /*if (biome.theBiomeDecorator.treesPerChunk > 5) {
-            colour = blend(colour, 0xff0b7000, 0.25);
-            colour = brightness(colour, 0.9);
-            treebased = true;
-        }*/
 
-//        int trees = biome.getFeatures(GenerationStage.Decoration.VEGETAL_DECORATION). decorator.treesPerChunk;
-//        if (trees > 0) {
-//            colour = blend(colour, 0xff0b7000, Math.min(0.25, trees * 0.025));
-//            colour = brightness(colour, 1.0 - Math.min(0.1, trees * 0.015));
-//            if (trees >= 4) {
-//                treebased = true;
-//            }
-//        }
-
-        if (BiomeDictionary.hasType(biome, BiomeDictionary.Type.RIVER)
-                || BiomeDictionary.hasType(biome, BiomeDictionary.Type.OCEAN)) {
+        if (biome.getCategory() == Biome.Category.RIVER
+                || biome.getCategory() == Biome.Category.OCEAN) {
             colour = blend(colour, 0xff4582ff, 0.7); // sea blue
         }
 
@@ -76,7 +61,7 @@ public class MapColours {
         }
 
         if (treebased) {
-            colour = temptint(colour, biome.getDefaultTemperature());
+            colour = temptint(colour, biome.getTemperature());
         }
 
         if (biome.getPrecipitation() == Biome.RainType.SNOW) {
@@ -97,13 +82,14 @@ public class MapColours {
 
     public int getBiomeBlockColourForCoords(Biome biome, BlockPos pos) {
         int colour;
-        if (biome.getSurfaceBuilderConfig().getTop() == Blocks.GRASS_BLOCK.getDefaultState()) { // uuuugh
-            IBlockReader overworld = DimensionManager.getWorld(Minecraft.getInstance().getIntegratedServer(), DimensionType.getById(0), true, true);
-            colour = biome.getSurfaceBuilderConfig().getTop().getMaterialColor(overworld, pos).colorValue | 0xFF000000;
+
+        if (biome.getGenerationSettings().getSurfaceBuilderConfig().getTop() == Blocks.GRASS_BLOCK.getDefaultState()) { // uuuugh
+            IBlockReader overworld = Minecraft.getInstance().getIntegratedServer().getWorld(World.OVERWORLD);
+            colour = biome.getGenerationSettings().getSurfaceBuilderConfig().getTop().getMaterialColor(overworld, pos).colorValue | 0xFF000000;
             int tint = biome.getGrassColor(pos.getX(), pos.getZ()) | 0xFF000000;
             colour = blend(colour,tint, 0.75);
         } else {
-            colour = this.getBlockColourRaw(biome.getSurfaceBuilderConfig().getTop());
+            colour = this.getBlockColourRaw(biome.getGenerationSettings().getSurfaceBuilderConfig().getTop());
         }
 
         return colour;
@@ -115,7 +101,7 @@ public class MapColours {
         BlockModelShapes shapes = brd.getBlockModelShapes();
         BlockColors colours = mc.getBlockColors();
 
-        IBlockReader overworld = DimensionManager.getWorld(Minecraft.getInstance().getIntegratedServer(), DimensionType.getById(0), true, true);
+        IBlockReader overworld = Minecraft.getInstance().getIntegratedServer().getWorld(World.OVERWORLD);
         int colour = block.getMaterialColor(overworld, new BlockPos(0, 255, 0)).colorValue | 0xFF000000;
         int fallback = colour;
 

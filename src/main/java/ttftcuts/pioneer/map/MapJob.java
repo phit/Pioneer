@@ -2,14 +2,15 @@ package ttftcuts.pioneer.map;
 
 import com.google.gson.JsonObject;
 import net.minecraft.client.Minecraft;
-import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.registry.Registry;
 import net.minecraft.util.text.TranslationTextComponent;
-import net.minecraft.world.World;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.biome.provider.BiomeProvider;
-import net.minecraft.world.dimension.DimensionType;
+import net.minecraft.world.DimensionType;
+import net.minecraft.world.server.ServerWorld;
+import net.minecraft.world.storage.ServerWorldInfo;
 import net.minecraftforge.registries.ForgeRegistries;
+import net.minecraftforge.registries.ForgeRegistry;
 import ttftcuts.pioneer.Pioneer;
 
 import java.io.File;
@@ -26,7 +27,7 @@ public class MapJob {
 
     protected final Queue<MapTile> tileQueue;
 
-    public final World world;
+    public final ServerWorld world;
     public final BiomeProvider provider;
     public final String filename;
 
@@ -36,9 +37,9 @@ public class MapJob {
     public int jobsize;
     protected final long startTime;
 
-    public MapJob(World world, int x, int z, int radius, int skip) {
+    public MapJob(ServerWorld world, int x, int z, int radius, int skip) {
         this.world = world;
-        this.provider = world.getServer().getWorld(DimensionType.OVERWORLD).getChunkProvider().getChunkGenerator().getBiomeProvider();
+        this.provider = world.getChunkProvider().getChunkGenerator().getBiomeProvider();
 
         this.tileQueue = new LinkedList<>();
 
@@ -48,7 +49,8 @@ public class MapJob {
         int offset = (int)Math.floor(tileworldsize * (tilerange / 2.0));
         this.jobsize = tilerange * tilerange;
 
-        this.filename = this.world.getWorldInfo().getWorldName() +"_"+ LocalDateTime.now().format(DATE_FORMAT) + ".pioneer"; //.zip
+        ServerWorldInfo info = (ServerWorldInfo) this.world.getWorldInfo();
+        this.filename = info.getWorldName() +"_"+ LocalDateTime.now().format(DATE_FORMAT) + ".pioneer"; //.zip
 
         Pioneer.logger.info("Pioneer: new mapping job: "+radius+" radius, "+x+","+z+" at scale "+skip+". "+this.jobsize+" tiles");
 
@@ -76,7 +78,8 @@ public class MapJob {
         }
 
         this.startTime = new Date().getTime();
-        Minecraft.getInstance().player.sendMessage(new TranslationTextComponent("commands.pioneer.start", this.jobsize));
+        Minecraft.getInstance().player.sendMessage(new TranslationTextComponent("commands.pioneer.start", this.jobsize),
+                Minecraft.getInstance().player.getUniqueID());
     }
 
     public void process() {
@@ -85,7 +88,7 @@ public class MapJob {
             if (!this.tileQueue.isEmpty()) {
                 MapTile t = this.tileQueue.poll();
 
-                t.generate(this.provider);
+                t.generate(this.world);
 
                 t.save(this.zip);
             } else {
@@ -110,7 +113,8 @@ public class MapJob {
         } else {
             long time = (new Date().getTime() - this.startTime) / 1000;
 
-            Minecraft.getInstance().player.sendMessage(new TranslationTextComponent("commands.pioneer.finish", this.jobsize, time));
+            Minecraft.getInstance().player.sendMessage(new TranslationTextComponent("commands.pioneer.finish", this.jobsize, time),
+                    Minecraft.getInstance().player.getUniqueID());
         }
     }
 
@@ -124,15 +128,22 @@ public class MapJob {
 
     public void buildJsons(int x, int z, int radius, int skip, int tilerange) throws IOException {
         JsonObject mapinfo = new JsonObject();
-        mapinfo.addProperty("worldname", this.world.getWorldInfo().getWorldName());
-        mapinfo.addProperty("dimensiontype", this.world.getDimension().getType().getRegistryName().toString());
-        mapinfo.addProperty("dimension", this.world.getDimension().getType().getId()+"");
-        mapinfo.addProperty("seed", this.world.getWorldInfo().getSeed()+"");
+
+        ServerWorldInfo info = (ServerWorldInfo) this.world.getWorldInfo();
+        final Registry<DimensionType> reg = this.world.func_241828_r().getRegistry(Registry.DIMENSION_TYPE_KEY);
+
+        mapinfo.addProperty("worldname", info.getWorldName());
+        mapinfo.addProperty("dimensiontype", reg.getKey(this.world.getDimensionType()).toString());
+        mapinfo.addProperty("dimension", this.world.getDimensionKey().getRegistryName()+"");
+        mapinfo.addProperty("seed", this.world.getSeed()+"");
 
         JsonObject generator = new JsonObject();
-        generator.addProperty("name", this.world.getWorldType().getTranslationKey());
-        generator.addProperty("version", this.world.getWorldType().getVersion());
-        generator.addProperty("options", this.world.getWorldInfo().getGeneratorOptions().toString());
+
+        // FIXME: these are probably gone in 1.16.3?
+        generator.addProperty("name", "n/a");
+        generator.addProperty("version", "n/a");
+        generator.addProperty("options", "");
+
         mapinfo.add("generator", generator);
 
         mapinfo.addProperty("x", x);
@@ -149,6 +160,7 @@ public class MapJob {
 
         JsonObject biomes = new JsonObject();
 
+        ForgeRegistry<Biome> biomereg = ((ForgeRegistry<Biome>) ForgeRegistries.BIOMES);
         for (Biome biome : ForgeRegistries.BIOMES) {
 
             if (biome == null) {
@@ -157,40 +169,16 @@ public class MapJob {
 
             JsonObject bson = new JsonObject();
 
-            bson.addProperty("name", biome.getDisplayName().getFormattedText());
-            bson.addProperty("temperature", biome.getDefaultTemperature());
+            bson.addProperty("name", biome.getRegistryName().toString());
+            bson.addProperty("temperature", biome.getTemperature());
             bson.addProperty("moisture", biome.getDownfall());
             bson.addProperty("precipitation", biome.getPrecipitation().getName());
             bson.addProperty("height", biome.getDepth());
             bson.addProperty("heightvariation", 0);
-            bson.addProperty("ismutation", biome.isMutation());
-
-            if (biome.isMutation()) {
-                // bson.addProperty("mutationof", Biome.MUTATION_TO_BASE_ID_MAP.get(biome));
-                String bp = biome.getParent();
-
-                if (bp != null) {
-                    ResourceLocation locBiome = ForgeRegistries.BIOMES.getKey(biome);
-                    Biome parent = ForgeRegistries.BIOMES.getValue(new ResourceLocation(bp.contains(":") ? bp : locBiome.getNamespace() + ":" + bp));
-
-                    if (parent != null) {
-                        bson.addProperty("mutationof", Registry.BIOME.getId(parent));
-                    } else {
-                        Biome parent2 = ForgeRegistries.BIOMES.getValue(new ResourceLocation("minecraft:" + bp));
-                        if (parent2 != null) {
-                            bson.addProperty("mutationof", Registry.BIOME.getId(parent2));
-                        } else {
-                            bson.addProperty("mutationof", 0);
-                        }
-                    }
-                } else {
-                    bson.addProperty("mutationof", 0);
-                }
-            }
-
+            bson.addProperty("ismutation", false);
             bson.addProperty("colour", "#" + Integer.toHexString(Pioneer.mapColours.getBiomeMapColour(biome)).substring(2));
 
-            biomes.add(Registry.BIOME.getId(biome) + "", bson);
+            biomes.add(biomereg.getID(biome) + "", bson);
         }
 
         this.zip.putNextEntry(new ZipEntry("biomes.json"));

@@ -1,6 +1,7 @@
 package ttftcuts.pioneer;
 
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.event.RegisterCommandsEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.ExtensionPoint;
 import net.minecraftforge.fml.ModLoadingContext;
@@ -29,7 +30,7 @@ public class Pioneer
     public static final int TILE_SIZE = 128;
     public static File SAVE_PATH;
 
-    public static final Logger logger = LogManager.getLogger("cwl");
+    public static final Logger logger = LogManager.getLogger("Pioneer");
 
     public static MapJob currentJob = null;
     public static MapColours mapColours;
@@ -48,8 +49,8 @@ public class Pioneer
     }
 
     @SubscribeEvent
-    public void serverStarting(FMLServerStartingEvent event) {
-        new CommandPioneer(event.getCommandDispatcher());
+    public void serverStarting(RegisterCommandsEvent event) {
+        new CommandPioneer(event.getDispatcher());
     }
 
     @SubscribeEvent

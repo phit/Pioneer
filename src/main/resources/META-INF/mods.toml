@@ -1,5 +1,6 @@
 modLoader="javafml" #mandatory
-loaderVersion="[31,)" #mandatory (28 is current forge version)
+loaderVersion="[34,)" #mandatory (28 is current forge version)
+license="All rights reserved"
 [[mods]]
 modId="pioneer" #mandatory
 version="${file.jarVersion}" #mandatory
@@ -15,7 +16,7 @@ A large scale biome mapping utility.
     # Does this dependency have to exist - if not, ordering below must be specified
     mandatory=true #mandatory
     # The version range of the dependency
-    versionRange="[31,)" #mandatory
+    versionRange="[34,)" #mandatory
     # An ordering relationship for the dependency - BEFORE or AFTER required if the relationship is not mandatory
     ordering="NONE"
     # Side this dependency is applied on - BOTH, CLIENT or SERVER
@@ -24,6 +25,6 @@ A large scale biome mapping utility.
 [[dependencies.examplemod]]
     modId="minecraft"
     mandatory=true
-    versionRange="[1.15.2]"
+    versionRange="[1.16.3]"
     ordering="NONE"
     side="BOTH"

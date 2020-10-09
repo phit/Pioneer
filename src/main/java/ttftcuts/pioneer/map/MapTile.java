@@ -1,8 +1,11 @@
 package ttftcuts.pioneer.map;
 
-import net.minecraft.util.registry.Registry;
+import net.minecraft.util.RegistryKey;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.biome.Biome;
-import net.minecraft.world.biome.provider.BiomeProvider;
+import net.minecraft.world.server.ServerWorld;
+import net.minecraftforge.registries.ForgeRegistries;
+import net.minecraftforge.registries.ForgeRegistry;
 import ttftcuts.pioneer.Pioneer;
 
 import javax.imageio.ImageIO;
@@ -10,8 +13,6 @@ import java.awt.image.BufferedImage;
 import java.awt.image.DataBuffer;
 import java.awt.image.WritableRaster;
 import java.io.IOException;
-import java.util.Collections;
-import java.util.Set;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -32,21 +33,22 @@ public class MapTile {
         this.filename = filename;
     }
 
-    public void generate(BiomeProvider provider) {
+    public void generate(ServerWorld world) {
         this.biomeMap = new BufferedImage(Pioneer.TILE_SIZE, Pioneer.TILE_SIZE, BufferedImage.TYPE_BYTE_GRAY);
 
         WritableRaster r = this.biomeMap.getRaster();
         DataBuffer data = r.getDataBuffer();
         int x, z, index;
 
-        Set<Biome> biome;
+        ForgeRegistry<Biome> biomereg = (ForgeRegistry<Biome>) ForgeRegistries.BIOMES;
 
-        for (x = 0; x<Pioneer.TILE_SIZE; x++) {
-            for (z = 0; z<Pioneer.TILE_SIZE; z++) {
+        for (x = 0; x < Pioneer.TILE_SIZE; x++) {
+            for (z = 0; z < Pioneer.TILE_SIZE; z++) {
                 index = z * Pioneer.TILE_SIZE + x;
 
-                biome = provider.getBiomes(this.worldX + x * skip, 1, this.worldZ + z * skip, 1);
-                data.setElem(index, Registry.BIOME.getId(biome.iterator().next()));
+                RegistryKey<Biome> biomeForCoords = world.func_242406_i(new BlockPos(this.worldX + x * skip, 1, this.worldZ + z * skip)).get();
+                int id = biomereg.getID(biomeForCoords.getLocation());
+                data.setElem(index, id);
             }
         }
 
